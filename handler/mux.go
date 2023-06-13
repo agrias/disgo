@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"strings"
 
 	"github.com/disgoorg/disgo/bot"
@@ -27,6 +28,7 @@ type Mux struct {
 	middlewares     []Middleware
 	routes          []Route
 	notFoundHandler NotFoundHandler
+	defaultContext  func() context.Context
 }
 
 // OnEvent is called when a new event is received.
@@ -52,7 +54,7 @@ func (r *Mux) OnEvent(event bot.Event) {
 		path = i.Data.CustomID
 	}
 
-	if err := r.Handle(path, make(map[string]string), e); err != nil {
+	if err := r.Handle(r.defaultContext(), path, make(map[string]string), e); err != nil {
 		event.Client().Logger().Errorf("error handling interaction: %v\n", err)
 	}
 }
@@ -99,7 +101,7 @@ func (r *Mux) Handle(path string, variables map[string]string, e *events.Interac
 	}
 
 	for i := len(r.middlewares) - 1; i >= 0; i-- {
-		handlerChain = r.middlewares[i](handlerChain)
+		handlerChain = r.middlewares[i](ctx, handlerChain)
 	}
 
 	return handlerChain(e)
