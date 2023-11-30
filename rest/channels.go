@@ -48,7 +48,7 @@ type Channels interface {
 	UnpinMessage(channelID snowflake.ID, messageID snowflake.ID, opts ...RequestOpt) error
 	Follow(channelID snowflake.ID, targetChannelID snowflake.ID, opts ...RequestOpt) (*discord.FollowedChannel, error)
 
-	UpdateVoiceStatus(channelID snowflake.ID, status string, opts ...RequestOpt) error
+	UpdateVoiceStatus(guildID snowflake.ID, channelID snowflake.ID, status string, opts ...RequestOpt) error
 }
 
 type channelImpl struct {
@@ -225,6 +225,6 @@ func (s *channelImpl) Follow(channelID snowflake.ID, targetChannelID snowflake.I
 	return
 }
 
-func (s *channelImpl) UpdateVoiceStatus(channelID snowflake.ID, status string, opts ...RequestOpt) error {
-	return s.client.Do(UpdateVoiceStatus.Compile(nil, channelID), discord.VoiceStatusUpdate{Status: status}, nil, opts...)
+func (s *channelImpl) UpdateVoiceStatus(guildID snowflake.ID, channelID snowflake.ID, status string, opts ...RequestOpt) error {
+	return s.client.Do(UpdateVoiceStatus.Compile(guildID, channelID), discord.VoiceStatusUpdate{Status: status}, nil, opts...)
 }
